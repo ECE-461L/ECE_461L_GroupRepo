@@ -4,17 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import Button from './Button';
 
 function HomePage() {
-    let navigate = useNavigate(); // Hook to get the navigate function
+    let navigate = useNavigate();
 
     const goToLogin = () => {
-        navigate('/login'); // Use navigate function to change the route
+        navigate('/login');
     };
 
     return (
         <div class-name="home-page">
-            <h2>Home Page</h2>
+            <h2 class-name="page-title">
+                Home Page
+            </h2>
             <div className="navigate-buttons">
-                <Button label="Login" onClick={goToLogin} />
+                <Button label="Go to login page" onClick={goToLogin} />
             </div>
         </div>
     );

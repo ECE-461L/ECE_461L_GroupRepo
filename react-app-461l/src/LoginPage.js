@@ -14,7 +14,7 @@ function LoginPage() {
     let navigate = useNavigate(); // Hook to get the navigate function
 
     const goToHome = () => {
-        navigate('/'); // Use navigate function to change the route
+        navigate('/home'); // Use navigate function to change the route
     };
 
     const handleSignInClick = () => {
@@ -31,8 +31,8 @@ function LoginPage() {
     const handlePasswordChange = (event) => {
         setPassword(event.target.value);
     };
-    
-    
+
+
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -49,26 +49,26 @@ function LoginPage() {
         handleSignUpClick();
         handleSubmit(event);
     };
-    
+
 
     return (
         <div className="login-page">
-            <h2>Login Page</h2>
-            <p>{message}</p>
-            
             <form onSubmit={handleSubmit} className="login-form">
                 <TextBox label="Username: " value={username} onChange={handleUsernameChange} />
                 <TextBox label="Password: " value={password} onChange={handlePasswordChange} />
-
+                <p>
+                    {message}
+                </p>
                 <Button label="Sign in" onClick={handleSignIn} />
                 <Button label="Sign Up" onClick={handleSignUp} />
-
             </form>
+            <div className="page-title">
+                Login Page
+            </div>
             <div className="navigate-buttons">
-                <Button label="Go to homepage" onClick={goToHome} />
+                <Button label="Go to home page" onClick={goToHome} />
             </div>
         </div>
-    
     );
 }
 

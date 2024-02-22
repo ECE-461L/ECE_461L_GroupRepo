@@ -2,7 +2,7 @@
   text-align: center;
 }
 
-.App-logo {
+/* .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
@@ -11,7 +11,7 @@
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-}
+} */
 
 .App-header {
   position: relative;
@@ -52,7 +52,7 @@
 .custom-text-box {
   padding: 10px;
   margin-top: 5px;
-  border: 1px solid #ccc;
+  border: 10px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
 }
@@ -74,6 +74,13 @@
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+.page-title {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: calc(20px + 2vmin);
 }
 
 /* @keyframes App-logo-spin {
