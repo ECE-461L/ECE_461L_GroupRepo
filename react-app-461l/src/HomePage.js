@@ -12,9 +12,16 @@ function HomePage() {
 
     return (
         <div class-name="home-page">
-            <h2 class-name="page-title">
+            <div className="page-title">
                 Home Page
-            </h2>
+            </div>
+
+            <div className="text-container">
+                <p>
+                    Welcome to the Home Page of the hardware checkout application
+                </p>
+            </div>
+
             <div className="navigate-buttons">
                 <Button label="Go to login page" onClick={goToLogin} />
             </div>

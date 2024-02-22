@@ -62,6 +62,17 @@
   outline: none;
 }
 
+.text-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: #444444;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
 /* .login-form {
   display: flex;
   flex-direction: column;

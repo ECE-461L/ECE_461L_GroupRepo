@@ -53,6 +53,7 @@ function LoginPage() {
 
     return (
         <div className="login-page">
+            
             <form onSubmit={handleSubmit} className="login-form">
                 <TextBox label="Username: " value={username} onChange={handleUsernameChange} />
                 <TextBox label="Password: " value={password} onChange={handlePasswordChange} />
