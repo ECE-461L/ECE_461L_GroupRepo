@@ -5,7 +5,8 @@ import { AuthProvider } from './AuthContext';
 import ProtectedRoute from './ProtectedRoute'; 
 import HomePage from './HomePage';
 import LoginPage from './LoginPage';
-import CheckoutPage from './CheckoutPage'; 
+import ProjectPage from './ProjectPage';
+import CheckoutPage from './CheckoutPage';
 
 function AppRouter() {
   return (
@@ -14,6 +15,11 @@ function AppRouter() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/project" element={
+            <ProtectedRoute>
+              <ProjectPage />
+            </ProtectedRoute>
+          } />
           <Route path="/checkout" element={
             <ProtectedRoute>
               <CheckoutPage />

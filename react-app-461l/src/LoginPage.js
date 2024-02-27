@@ -51,7 +51,7 @@ function LoginPage() {
                 if (userData) {
                     signIn(userData);
                     setMessage(userData.message);
-                    navigate('/checkout');
+                    navigate('/project');
                 }
                 // goToHome();
             } catch (error) {
@@ -62,6 +62,7 @@ function LoginPage() {
         
         else if (action === 'signUp') {
             const userData = await registerUser();
+            
         }
     };
 
@@ -74,8 +75,8 @@ function LoginPage() {
         <div className="login-page">
             
             <form onSubmit={handleSubmit} className="login-form">
-                <TextBox label="Username: " value={username} onChange={handleUsernameChange} type="text"/>
-                <TextBox label="Password: " value={password} onChange={handlePasswordChange} type="password"/>
+                <TextBox label="Username: " value={username} onChange={handleUsernameChange} type="text" placeholder="user123"/>
+                <TextBox label="Password: " value={password} onChange={handlePasswordChange} type="password" placeholder="password123"/>
                 <p>{message}</p>
                 {authError && <p className="error-message">{authError}</p>}
                 <Button label="Sign in" onClick={() => handleAction('signIn')} />

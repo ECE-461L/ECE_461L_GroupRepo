@@ -18,7 +18,7 @@ function HomePage() {
 
             <div className="text-container">
                 <p>
-                    Welcome to the Home Page of the hardware checkout application
+                    Welcome to the Home Page of the hardware checkout application. Please login to continue...
                 </p>
             </div>
 

@@ -7,56 +7,75 @@ import { useAuth } from './AuthContext';
 function CheckoutPage() {
     let navigate = useNavigate();
 
-    const { user, signOut } = useAuth();
+    const [request1, setRequest1] = useState('');
+    const [request2, setRequest2] = useState('');
+    const { user, signOut, projectId, updateProjectId } = useAuth();
+    const [message, setMessage] = useState('');
+
 
     const handleSignOut = () => {
         signOut();
         navigate('/');
     };
 
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [projectId, setProjectId] = useState('');
-    const [message, setMessage] = useState('');
+    const goToProjects = () => {
+        updateProjectId(null);
+        navigate('/project');
+    };
 
-    const handleNameChange = (event) => {
-        setName(event.target.value);
+
+    const handleRequest1Change = (event) => {
+        setRequest1(event.target.value);
     };
-    const handleDescriptionChange = (event) => {
-        setDescription(event.target.value);
-    };
-    const handleProjectIdChange = (event) => {
-        setProjectId(event.target.value);
+
+    const handleRequest2Change = (event) => {
+        setRequest2(event.target.value);
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
     };
 
-    const createNewProject = () => {
-        setMessage("Create New Project button clicked");
+    const checkIn = () => {
+        setMessage("Check in button clicked");
     };
 
-    const useExistingProject = () => {
-        setMessage("Use Existing Project button clicked");
+    const checkOut = () => {
+        setMessage("Check out button clicked");
     };
 
     return (
         <div className="checkout-page">
             <div className="page-title">Checkout Page</div>
             <div className="text-container">
-                <p>Welcome <strong>{user.user}</strong>! This is the Checkout Page of the hardware checkout application</p>
+                <p>Project ID: <strong>{projectId}</strong> </p>
             </div>
-            <form className="project-form" onSubmit={handleSubmit}>
-                <TextBox label="Name" value={name} onChange={handleNameChange} type="text"/>
-                <TextBox label="Description" value={description} onChange={handleDescriptionChange} type="text"/>
-                <TextBox label="Project ID" value={projectId} onChange={handleProjectIdChange} type="text"/>
+            <form className="checkout-form" onSubmit={handleSubmit}>
+                <div className="grid-container">
+                    <div></div>
+                    <div className="grid-header">Capacity</div>
+                    <div className="grid-header">Availability</div>
+                    <div className="grid-header">Request</div>
+                    <div className="grid-header">HW Set 1</div>
+                    <div className="grid-item">10</div>
+                    <div className="grid-item">8</div>
+                    <div className="grid-item">
+                        <TextBox label="" value={request1} onChange={handleRequest1Change} type="text" placeholder="Enter request quantity" />
+                    </div>
+                    <div className="grid-header">HW Set 2</div>
+                    <div className="grid-item">20</div>
+                    <div className="grid-item">15</div>
+                    <div className="grid-item">
+                        <TextBox label="" value={request2} onChange={handleRequest2Change} type="text" placeholder="Enter request quantity" />
+                    </div>
+                </div>
+                <Button label="Check in" onClick={checkIn} type="button" />
+                <Button label="Check out" onClick={checkOut} type="button" />
                 {message && <p>{message}</p>}
-                <Button label="Create New Project" onClick={createNewProject} type="button" />
-                <Button label="Use Existing Project" onClick={useExistingProject} type="button" />
             </form>
             <div className="navigate-buttons">
-                <Button label="Sign out" onClick={handleSignOut} type="button" />
+                <Button label="Project page" onClick={goToProjects} />
+                <Button label="Sign out" onClick={handleSignOut} />
             </div>
         </div>
     );
