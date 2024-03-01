@@ -57,14 +57,14 @@ function CheckoutPage() {
                     <div className="grid-header">Availability</div>
                     <div className="grid-header">Request</div>
                     <div className="grid-header">HW Set 1</div>
-                    <div className="grid-item">10</div>
-                    <div className="grid-item">8</div>
+                    <div className="grid-item">100</div>
+                    <div className="grid-item">100</div>
                     <div className="grid-item">
                         <TextBox label="" value={request1} onChange={handleRequest1Change} type="text" placeholder="Enter request quantity" />
                     </div>
                     <div className="grid-header">HW Set 2</div>
-                    <div className="grid-item">20</div>
-                    <div className="grid-item">15</div>
+                    <div className="grid-item">1000</div>
+                    <div className="grid-item">1000</div>
                     <div className="grid-item">
                         <TextBox label="" value={request2} onChange={handleRequest2Change} type="text" placeholder="Enter request quantity" />
                     </div>
@@ -74,7 +74,7 @@ function CheckoutPage() {
                 {message && <p>{message}</p>}
             </form>
             <div className="navigate-buttons">
-                <Button label="Project page" onClick={goToProjects} />
+                <Button label="Back to project page" onClick={goToProjects} />
                 <Button label="Sign out" onClick={handleSignOut} />
             </div>
         </div>

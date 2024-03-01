@@ -48,8 +48,23 @@
 .text-box-container {
   display: flex;
   justify-content: space-between;
+  /* gap: 20px; */
   align-items: center;
   margin: 20px auto;
+  /* width: fit-content */
+}
+
+.error-message {
+  color: rgb(255, 80, 80);
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.form-container {
+  max-width: 390px; 
+  margin: auto; 
+  /* display: flex; */
+  /* flex-direction: column;  */
 }
 
 .custom-text-box {
@@ -84,10 +99,13 @@ label {
 .grid-container {
   display: grid;
   grid-template-columns: auto repeat(3, 1fr);
-  gap: 20px;
   margin: 20px;
   align-items: center;
 }
+
+/* label {
+  margin-right: 20px;
+} */
 
 .grid-header {
   font-weight: bold;

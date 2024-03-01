@@ -4,6 +4,8 @@ import { useAuth } from './AuthContext';
 import Button from './Button';
 import TextBox from './TextBox';
 
+
+
 function LoginPage() {
     const [message, setMessage] = useState('');
     const [username, setUsername] = useState('');
@@ -39,8 +41,20 @@ function LoginPage() {
         return data;
     };
 
+    
+
     const registerUser = async () => {
         setMessage('Sign up button clicked');
+        const response = await fetch('http://localhost:5000/register', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || 'Default login error');
+        }
+        return data;
     };
 
     const handleSubmit = async (event) => {
@@ -61,8 +75,18 @@ function LoginPage() {
         }
         
         else if (action === 'signUp') {
-            const userData = await registerUser();
-            
+            try {
+                const userData = await registerUser();
+                if (userData) {
+                    signIn(userData);
+                    setMessage(userData.message);
+                    navigate('/project');
+                }
+                // goToHome();
+            } catch (error) {
+                setAuthError(error.message);
+                console.error(error);
+            }            
         }
     };
 
@@ -74,13 +98,13 @@ function LoginPage() {
     return (
         <div className="login-page">
             
-            <form onSubmit={handleSubmit} className="login-form">
+            <form onSubmit={handleSubmit} className="form-container">
                 <TextBox label="Username: " value={username} onChange={handleUsernameChange} type="text" placeholder="user123"/>
                 <TextBox label="Password: " value={password} onChange={handlePasswordChange} type="password" placeholder="password123"/>
-                <p>{message}</p>
-                {authError && <p className="error-message">{authError}</p>}
                 <Button label="Sign in" onClick={() => handleAction('signIn')} />
                 <Button label="Sign Up" onClick={() => handleAction('signUp')} />
+                {/* <p>{message}</p> */}
+                {authError && <p className="error-message">{authError}</p>}
             </form>
             <div className="page-title">
                 Login Page

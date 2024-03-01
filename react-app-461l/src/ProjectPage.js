@@ -52,9 +52,11 @@ function ProjectPage() {
                 <p>Welcome <strong>{user.user}</strong>!</p>
             </div>
             <form className="project-form" onSubmit={handleSubmit}>
-                <TextBox label="Name" value={name} onChange={handleNameChange} type="text" placeholder="ECE 461L project"/>
-                <TextBox label="Description" value={description} onChange={handleDescriptionChange} type="text" placeholder="HW checkout application"/>
-                <TextBox label="Project ID" value={enteredProjectId} onChange={handleProjectIdChange} type="text" placeholder="ABC1234"/>
+                <div className="form-container">
+                    <TextBox label="Name" value={name} onChange={handleNameChange} type="text" placeholder="ECE 461L project"/>
+                    <TextBox label="Description" value={description} onChange={handleDescriptionChange} type="text" placeholder="HW checkout application"/>
+                    <TextBox label="Project ID" value={enteredProjectId} onChange={handleProjectIdChange} type="text" placeholder="ABC1234"/>
+                </div>
                 {message && <p>{message}</p>}
                 <Button label="Create New Project" onClick={createNewProject} type="button" />
                 <Button label="Use Existing Project" onClick={useExistingProject} type="button" />
