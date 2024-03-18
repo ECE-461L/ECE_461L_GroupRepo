@@ -1,26 +1,21 @@
 from flask import Flask, send_from_directory, request, json, jsonify
 from flask_cors import cross_origin, CORS
 import cipher
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+import os
 
 app = Flask(__name__, static_folder="./build", static_url_path="/")
 cors = CORS(app)
 
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 uri = "mongodb+srv://somwakdikar:SZOa1VIGJGsPcI78@cluster.ti6nxe6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
-
-# Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
-db = client["ECE-461L"]
-loginDb = db.login
-import datetime
-
-# Send a ping to confirm a successful connection
-client.admin.command('ping')
-print("Successfully connected to MongoDB")
 
 cipherN = 11
 cipherD = -1
+
+client.admin.command('ping')
+print("Successfully connected to MongoDB")
 
 
 # Default behavior to pull from the index.html frontend file
@@ -31,6 +26,7 @@ def index():
 
 @app.route("/db-login", methods=["GET"])
 def viewLoginDb():
+    loginDb = client["ECE-461L"].login
     users = loginDb.find({}, {"_id": 0})
 
     html_output = "<html><body><table><tr><th>Username</th><th>&nbsp;</th><th>Encrypted Password</th></tr>"
@@ -47,6 +43,8 @@ def viewLoginDb():
 
 @app.route("/authenticate", methods=["POST"])
 def authenticate():
+    loginDb = client["ECE-461L"].login
+
     user_data = request.get_json()
     print(user_data)
     username = user_data.get("username")
@@ -64,12 +62,14 @@ def authenticate():
         else:
             return jsonify({"message": "Incorrect password"}), 401
     else:
-        return jsonify({"message": "No user with the submitted username exists"}), 401
+        return jsonify({"message": "User doesn't exist"}), 401
 
 
 
 @app.route("/register", methods=["POST"])
 def register():
+    loginDb = client["ECE-461L"].login
+
     user_data = request.get_json()
     print(user_data)
     username = user_data.get("username")
@@ -92,8 +92,8 @@ def not_found(e):
     return send_from_directory(app.static_folder, "index.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
 
     # From class
-    # app.run(host='0.0.0.0', debug=False, port=5000)
+    app.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
 

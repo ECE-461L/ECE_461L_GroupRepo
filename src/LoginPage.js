@@ -4,6 +4,11 @@ import { useAuth } from './AuthContext';
 import Button from './Button';
 import TextBox from './TextBox';
 
+// const backendUrl = process.env.REACT_APP_BACKEND_URL;
+// const backendUrl = 'http://localhost:5000';
+const backendUrl = "https://stormy-ravine-10089-ed2377f68544.herokuapp.com"
+// console.log("backend URL used:")
+// console.log(`${backendUrl}/authenticate`)
 
 
 function LoginPage() {
@@ -29,7 +34,7 @@ function LoginPage() {
 
     const authenticateUser = async () => {
         setMessage('Sign in button clicked');
-        const response = await fetch('http://localhost:5000/authenticate', {
+        const response = await fetch(`${backendUrl}/authenticate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
@@ -45,7 +50,7 @@ function LoginPage() {
 
     const registerUser = async () => {
         setMessage('Sign up button clicked');
-        const response = await fetch('http://localhost:5000/register', {
+        const response = await fetch(`${backendUrl}/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
