@@ -4,11 +4,10 @@ import { useAuth } from './AuthContext';
 import Button from './Button';
 import TextBox from './TextBox';
 
-// const backendUrl = process.env.REACT_APP_BACKEND_URL;
-// const backendUrl = 'http://localhost:5000';
-const backendUrl = "https://stormy-ravine-10089-ed2377f68544.herokuapp.com"
-// console.log("backend URL used:")
-// console.log(`${backendUrl}/authenticate`)
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+console.log("backend URL used:")
+console.log(`${backendUrl}`)
 
 
 function LoginPage() {

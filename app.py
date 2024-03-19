@@ -4,18 +4,23 @@ import cipher
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import os
+from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
+
+# Create Flask app
 app = Flask(__name__, static_folder="./build", static_url_path="/")
 cors = CORS(app)
+cipherN = int(os.environ['CIPHER_N'])
+cipherD = int(os.environ['CIPHER_D'])
 
-uri = "mongodb+srv://somwakdikar:SZOa1VIGJGsPcI78@cluster.ti6nxe6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster"
-client = MongoClient(uri, server_api=ServerApi('1'))
-
-cipherN = 11
-cipherD = -1
-
+# Connect to MongoDB
+client = MongoClient(os.environ['MONGO_URI'], server_api=ServerApi('1'))
 client.admin.command('ping')
 print("Successfully connected to MongoDB")
+db = os.environ['DB_NAME']
+loginDb = client[os.environ['DB_NAME']][os.environ['LOGIN_COLLECTION']]
 
 
 # Default behavior to pull from the index.html frontend file
@@ -26,25 +31,19 @@ def index():
 
 @app.route("/db-login", methods=["GET"])
 def viewLoginDb():
-    loginDb = client["ECE-461L"].login
     users = loginDb.find({}, {"_id": 0})
-
     html_output = "<html><body><table><tr><th>Username</th><th>&nbsp;</th><th>Encrypted Password</th></tr>"
-
     for user in users:
         decrypted_username = cipher.decrypt(user["username"], cipherN, cipherD)
         encrypted_password = user["password"]
         html_output += f"<tr><td>{decrypted_username}</td><td>&nbsp;</td><td>{encrypted_password}</td></tr>"
 
     html_output += "</table></body></html>"
-
     return html_output
 
 
 @app.route("/authenticate", methods=["POST"])
 def authenticate():
-    loginDb = client["ECE-461L"].login
-
     user_data = request.get_json()
     print(user_data)
     username = user_data.get("username")
@@ -65,11 +64,8 @@ def authenticate():
         return jsonify({"message": "User doesn't exist"}), 401
 
 
-
 @app.route("/register", methods=["POST"])
 def register():
-    loginDb = client["ECE-461L"].login
-
     user_data = request.get_json()
     print(user_data)
     username = user_data.get("username")
@@ -84,7 +80,6 @@ def register():
         return jsonify({"message": "Creating credentials", "user": username})
     else:
         return jsonify({"message": "Username taken"}), 401
-    
 
 
 @app.errorhandler(404)
@@ -92,8 +87,5 @@ def not_found(e):
     return send_from_directory(app.static_folder, "index.html")
 
 if __name__ == "__main__":
-    # app.run(debug=True)
-
-    # From class
-    app.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
+    app.run(host=os.environ['HOST'], debug=False, port=int(os.environ['PORT']))
 
