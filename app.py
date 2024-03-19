@@ -12,6 +12,8 @@ load_dotenv()
 # Create Flask app
 app = Flask(__name__, static_folder="./build", static_url_path="/")
 cors = CORS(app)
+
+# Set cipher variables
 cipherN = int(os.environ['CIPHER_N'])
 cipherD = int(os.environ['CIPHER_D'])
 
@@ -23,11 +25,11 @@ db = os.environ['DB_NAME']
 loginDb = client[os.environ['DB_NAME']][os.environ['LOGIN_COLLECTION']]
 
 
+
 # Default behavior to pull from the index.html frontend file
 @app.route("/", methods=["GET"])
 def index():
     return send_from_directory(app.static_folder, "index.html")
-
 
 @app.route("/db-login", methods=["GET"])
 def viewLoginDb():
