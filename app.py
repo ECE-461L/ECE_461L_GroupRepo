@@ -9,6 +9,10 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+print("Loaded environment variables:")
+for key, value in os.environ.items():
+    print(f"{key}={value}")
+
 # Create Flask app
 app = Flask(__name__, static_folder="./build", static_url_path="/")
 cors = CORS(app)
