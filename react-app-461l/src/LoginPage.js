@@ -57,8 +57,14 @@ function LoginPage() {
         return data;
     };
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async(event) => {
         event.preventDefault();
+
+        if (password.length < 8) {
+            setAuthError('Password must be at least 8 characters long.');
+            return;
+        }
+
         if (action === 'signIn') {
             try {
                 const userData = await authenticateUser();
@@ -97,15 +103,17 @@ function LoginPage() {
 
     return (
         <div className="login-page">
-            
             <form onSubmit={handleSubmit} className="form-container">
                 <TextBox label="Username: " value={username} onChange={handleUsernameChange} type="text" placeholder="user123"/>
                 <TextBox label="Password: " value={password} onChange={handlePasswordChange} type="password" placeholder="password123"/>
                 <Button label="Sign in" onClick={() => handleAction('signIn')} />
                 <Button label="Sign Up" onClick={() => handleAction('signUp')} />
-                {/* <p>{message}</p> */}
-                {authError && <p className="error-message">{authError}</p>}
             </form>
+            <div>
+                {authError && <p className="error-message">{authError}</p>}
+                {/* <p>{message}</p> */}
+            </div>
+
             <div className="page-title">
                 Login Page
             </div>
