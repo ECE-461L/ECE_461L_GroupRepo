@@ -27,7 +27,7 @@ client.admin.command('ping')
 print("Successfully connected to MongoDB")
 db = os.environ['DB_NAME']
 loginDb = client[os.environ['DB_NAME']][os.environ['LOGIN_COLLECTION']]
-
+projectDb = client[os.environ['DB_NAME']][os.environ['PROJECT_COLLECTION']]
 
 
 # Default behavior to pull from the index.html frontend file
@@ -87,6 +87,102 @@ def register():
     else:
         return jsonify({"message": "Username taken"}), 401
 
+@app.route("/create-project", methods=["POST"])
+def createProject():
+    projectData = request.get_json()
+    print(projectData)
+    id = projectData.get("projectId")
+    name = projectData.get("name")
+    description = projectData.get("description")
+    set1Capacity = projectData.get("hwSet1Capacity")
+    set2Capacity = projectData.get("hwSet2Capacity")
+
+    checkProjectId = {"projectId": id}
+
+    createProject = {"projectId": id,
+                    "name": name,
+                    "description": description,
+                    "hwSet1Capacity": set1Capacity,
+                    "hwSet2Capacity": set2Capacity,
+                    "hwSet1Availability": set1Capacity,
+                    "hwSet2Availability": set2Capacity
+                    }
+
+    if projectDb.find_one(checkProjectId.copy()):
+        return jsonify({"message": "The project Id already exists."}), 401
+    else:
+        projectDb.insert_one(createProject.copy())
+        return jsonify({"message": "Creating project.", **createProject})
+
+
+@app.route("/use-project", methods=["POST"])
+def useProject():
+    projectData = request.get_json()
+    print(projectData)
+    id = projectData.get("projectId")
+
+    checkProjectId = {"projectId": id}
+
+    retrievedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
+
+    if retrievedProjectData:
+        return jsonify({"message": "Project exists.", **retrievedProjectData})
+    else:
+        return jsonify({"message": "Project does not exist."}), 401
+    
+
+@app.route("/check-in", methods=["POST"])
+def checkIn():
+    projectData = request.get_json()
+    id = projectData.get("projectId")
+    request1 = projectData.get("request1")
+    request2 = projectData.get("request2")
+
+    checkProjectId = {"projectId": id}
+    retrievedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
+
+    if retrievedProjectData:
+        if int(retrievedProjectData['hwSet1Availability']) + int(request1) > int(retrievedProjectData['hwSet1Capacity']):
+            return jsonify({"message": "HW set 1 check in quantity exceeds capacity."}), 401
+        if int(retrievedProjectData['hwSet2Availability']) + int(request2) > int(retrievedProjectData['hwSet2Capacity']):
+            return jsonify({"message": "HW set 2 check in quantity exceeds capacity."}), 401
+        
+        newAvailability1 = str(int(retrievedProjectData['hwSet1Availability']) + int(request1))
+        newAvailability2 = str(int(retrievedProjectData['hwSet2Availability']) + int(request2))
+        projectDb.update_one(checkProjectId, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
+
+        updatedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
+        return jsonify({"message": "Checked in requested quantities.", **updatedProjectData})
+    
+    else:
+        return jsonify({"message": "Project does not exist."}), 401
+
+
+@app.route("/check-out", methods=["POST"])
+def checkOut():
+    projectData = request.get_json()
+    id = projectData.get("projectId")
+    request1 = projectData.get("request1")
+    request2 = projectData.get("request2")
+
+    checkProjectId = {"projectId": id}
+    retrievedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
+
+    if retrievedProjectData:
+        if int(retrievedProjectData['hwSet1Availability']) - int(request1) < 0:
+            return jsonify({"message": "HW set 1 check out quantity exceeds availability."}), 401
+        if int(retrievedProjectData['hwSet2Availability']) - int(request2) < 0:
+            return jsonify({"message": "HW set 2 check out quantity exceeds availability."}), 401
+        
+        newAvailability1 = str(int(retrievedProjectData['hwSet1Availability']) - int(request1))
+        newAvailability2 = str(int(retrievedProjectData['hwSet2Availability']) - int(request2))
+        projectDb.update_one(checkProjectId, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
+
+        updatedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
+        return jsonify({"message": "Checked out requested quantities.", **updatedProjectData})
+    
+    else:
+        return jsonify({"message": "Project does not exist."}), 401
 
 @app.errorhandler(404)
 def not_found(e):

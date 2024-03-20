@@ -7,7 +7,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [projectId, setProjectId] = useState(null);
+  const [projectContext, setProject] = useState(null);
 
 
   const signIn = (userData) => {
@@ -16,15 +16,15 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = () => {
     setUser(null);
-    setProjectId(null);
+    setProject(null);
   };
 
-  const updateProjectId = (id) => {
-    setProjectId(id);
+  const updateProject = (project) => {
+    setProject(project);
   };
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut, projectId, updateProjectId }}>
+    <AuthContext.Provider value={{ user, signIn, signOut, projectContext, updateProject }}>
       {children}
     </AuthContext.Provider>
   );

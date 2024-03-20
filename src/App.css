@@ -61,7 +61,7 @@
 }
 
 .form-container {
-  max-width: 390px; 
+  max-width: fit-content; 
   margin: auto; 
   /* display: flex; */
   /* flex-direction: column;  */
@@ -72,9 +72,16 @@
   margin-top: 5px;
   border: 4px solid #ccc;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
   width: auto;
 } 
+
+.custom-text-box::placeholder {
+  font-weight: normal;
+  font-size: 16px; 
+  color: #c2c2c2;
+}
 
 .custom-text-box:focus {
   border-color: #61dafb;
