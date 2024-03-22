@@ -35,7 +35,7 @@ projectDb = client[os.environ['DB_NAME']][os.environ['PROJECT_COLLECTION']]
 def index():
     return send_from_directory(app.static_folder, "index.html")
 
-@app.route("/db-login", methods=["GET"])
+@app.route("/login-db", methods=["GET"])
 def viewLoginDb():
     users = loginDb.find({}, {"_id": 0})
     html_output = "<html><body><table><tr><th>Username</th><th>&nbsp;</th><th>Encrypted Password</th></tr>"
@@ -43,6 +43,17 @@ def viewLoginDb():
         decrypted_username = cipher.decrypt(user["username"], cipherN, cipherD)
         encrypted_password = user["password"]
         html_output += f"<tr><td>{decrypted_username}</td><td>&nbsp;</td><td>{encrypted_password}</td></tr>"
+
+    html_output += "</table></body></html>"
+    return html_output
+
+# shows project ID, HWset1 capacity, HWset1 availability, HWset2 capacity, HWset2 availability in that order
+@app.route("/project-db", methods=["GET"])
+def viewProjectDb():
+    projects = projectDb.find({}, {"_id": 0})
+    html_output = "<html><body><table><tr><th>Project ID</th><th>&nbsp;</th><th>Project Name</th><th>&nbsp;</th><th>Description</th><th>&nbsp;</th><th>HW Set 1 Capacity</th><th>&nbsp;</th><th>HW Set 1 Availability</th><th>&nbsp;</th><th>HW Set 2 Capacity</th><th>&nbsp;</th><th>HW Set 2 Availability</th></tr>"
+    for project in projects:
+        html_output += f"<tr><td>{project['projectId']}</td><td>&nbsp;</td><td>{project['name']}</td><td>&nbsp;</td><td>{project['description']}</td><td>&nbsp;</td><td>{project['hwSet1Capacity']}</td><td>&nbsp;</td><td>{project['hwSet1Availability']}</td><td>&nbsp;</td><td>{project['hwSet2Capacity']}</td><td>&nbsp;</td><td>{project['hwSet2Availability']}</td></tr>"
 
     html_output += "</table></body></html>"
     return html_output
