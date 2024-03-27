@@ -99,7 +99,7 @@ function ProjectPage() {
         if (!validateProjectId()) {
             return;
         }
-        if (!onlyNumbers.test(hwSet1Capacity) || !onlyNumbers.test(hwSet2Capacity) || hwSet1Capacity === '0' || hwSet2Capacity === '0') {
+        if (!onlyNumbers.test(hwSet1Capacity) || !onlyNumbers.test(hwSet2Capacity) || (hwSet1Capacity === '0' && hwSet2Capacity === '0')) {
             setInputError("Initial capacities for HW Set #1 and HW Set #2 must be valid numbers.");
             return;
         }
