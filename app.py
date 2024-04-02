@@ -120,7 +120,7 @@ def createProject():
     description = projectData.get("description")
 
     checkProjectId = {"projectId": id}
-    quantities = checkoutDb.find_one()
+    quantities = checkoutDb.find_one({}, {'_id': 0})
 
     createProject = {"projectId": id,
                     "name": name,
@@ -128,6 +128,8 @@ def createProject():
                     }
     
     returnDocument = {**createProject, **quantities}
+
+    print(returnDocument)
 
     if projectDb.find_one(checkProjectId.copy()):
         return jsonify({"message": "The project Id already exists."}), 401
@@ -143,7 +145,7 @@ def useProject():
     id = projectData.get("projectId")
 
     checkProjectId = {"projectId": id}
-    quantities = checkoutDb.find_one()
+    quantities = checkoutDb.find_one({}, {'_id': 0})
 
 
     retrievedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
@@ -178,7 +180,7 @@ def checkIn():
         newAvailability2 = str(int(quantities['hwSet2Availability']) + int(request2))
         checkoutDb.update_one({'_id': quantities['_id']}, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
 
-        updatedQuantities = checkoutDb.find_one()
+        updatedQuantities = checkoutDb.find_one({}, {'_id': 0})
 
         updatedProjectData = {**retrievedProjectData, **updatedQuantities}
         return jsonify({"message": "Checked in requested quantities.", **updatedProjectData})
@@ -209,7 +211,8 @@ def checkOut():
         newAvailability2 = str(int(quantities['hwSet2Availability']) - int(request2))
         checkoutDb.update_one({'_id': quantities['_id']}, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
 
-        updatedQuantities = checkoutDb.find_one()
+        updatedQuantities = checkoutDb.find_one({}, {'_id': 0})
+
         updatedProjectData = {**retrievedProjectData, **updatedQuantities}
         return jsonify({"message": "Checked out requested quantities.", **updatedProjectData})
     
@@ -222,4 +225,5 @@ def not_found(e):
 
 if __name__ == "__main__":
     app.run(host=os.environ['HOST'], debug=False, port=int(os.environ['PORT']))
-
+    # local run
+    # app.run(host="localhost", debug=True, port=5000)
