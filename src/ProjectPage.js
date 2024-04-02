@@ -12,11 +12,9 @@ function ProjectPage() {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [projectId, setProjectId] = useState('');
-    const [hwSet1Capacity, setHWSet1Capacity] = useState('');
-    const [hwSet2Capacity, setHWSet2Capacity] = useState('');
     const [message, setMessage] = useState('');
     const [inputError, setInputError] = useState('');
-    const fields = [name, description, projectId, hwSet1Capacity, hwSet2Capacity];
+    const fields = [name, description, projectId];
     const onlyNumbers = /^\d+$/;
     
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -37,14 +35,6 @@ function ProjectPage() {
         setProjectId(event.target.value);
     };
 
-    const handleHWSet1Change = (event) => {
-        setHWSet1Capacity(event.target.value);
-    };
-
-    const handleHWSet2Change = (event) => {
-        setHWSet2Capacity(event.target.value);
-    };
-
     const handleSubmit = (event) => {
         event.preventDefault();
         // setMessage("HandleSubmit called");
@@ -54,7 +44,7 @@ function ProjectPage() {
         const response = await fetch(`${backendUrl}/create-project`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ projectId, name, description, hwSet1Capacity, hwSet2Capacity})
+            body: JSON.stringify({ projectId, name, description})
         });
 
         const data = await response.json();
@@ -97,10 +87,6 @@ function ProjectPage() {
             return;
         }
         if (!validateProjectId()) {
-            return;
-        }
-        if (!onlyNumbers.test(hwSet1Capacity) || !onlyNumbers.test(hwSet2Capacity) || (hwSet1Capacity === '0' && hwSet2Capacity === '0')) {
-            setInputError("Initial capacities for HW Set #1 and HW Set #2 must be valid numbers.");
             return;
         }
 
@@ -150,8 +136,6 @@ function ProjectPage() {
                 <TextBox label="Project ID" value={projectId} onChange={handleProjectIdChange} type="text" placeholder="12345"/>
                 <TextBox label="Name" value={name} onChange={handleNameChange} type="text" placeholder="ECE 461L project"/>
                 <TextBox label="Description" value={description} onChange={handleDescriptionChange} type="text" placeholder="HW checkout application"/>
-                <TextBox label="HW Set #1 Capacity" value={hwSet1Capacity} onChange={handleHWSet1Change} type="text" placeholder="10"/>
-                <TextBox label="HW Set #2 Capacity" value={hwSet2Capacity} onChange={handleHWSet2Change} type="text" placeholder="100"/>
                 <Button label="Create New Project" onClick={handleCreateNewProject} />
                 <Button label="Use Existing Project" onClick={handleUseExistingProject} />
             </form>

@@ -29,6 +29,19 @@ db = os.environ['DB_NAME']
 loginDb = client[os.environ['DB_NAME']][os.environ['LOGIN_COLLECTION']]
 projectDb = client[os.environ['DB_NAME']][os.environ['PROJECT_COLLECTION']]
 
+# updated global quantity correctly
+checkoutDb = client[os.environ['DB_NAME']][os.environ['CHECKOUT_COLLECTION']]
+# remove old data
+checkoutDb.delete_many({})
+globalData = {
+    'hwSet1Capacity': f"{os.environ['SET_1_CAPACITY']}",
+    'hwSet1Availability': f"{os.environ['SET_1_CAPACITY']}",
+    'hwSet2Capacity': f"{os.environ['SET_2_CAPACITY']}",
+    'hwSet2Availability': f"{os.environ['SET_2_CAPACITY']}"
+}
+checkoutDb.insert_one(globalData)
+print("Initialized global capacities")
+
 
 # Default behavior to pull from the index.html frontend file
 @app.route("/", methods=["GET"])
@@ -48,15 +61,15 @@ def viewLoginDb():
     return html_output
 
 # shows project ID, HWset1 capacity, HWset1 availability, HWset2 capacity, HWset2 availability in that order
-@app.route("/project-db", methods=["GET"])
-def viewProjectDb():
-    projects = projectDb.find({}, {"_id": 0})
-    html_output = "<html><body><table><tr><th>Project ID</th><th>&nbsp;</th><th>Project Name</th><th>&nbsp;</th><th>Description</th><th>&nbsp;</th><th>HW Set 1 Capacity</th><th>&nbsp;</th><th>HW Set 1 Availability</th><th>&nbsp;</th><th>HW Set 2 Capacity</th><th>&nbsp;</th><th>HW Set 2 Availability</th></tr>"
-    for project in projects:
-        html_output += f"<tr><td>{project['projectId']}</td><td>&nbsp;</td><td>{project['name']}</td><td>&nbsp;</td><td>{project['description']}</td><td>&nbsp;</td><td>{project['hwSet1Capacity']}</td><td>&nbsp;</td><td>{project['hwSet1Availability']}</td><td>&nbsp;</td><td>{project['hwSet2Capacity']}</td><td>&nbsp;</td><td>{project['hwSet2Availability']}</td></tr>"
+# @app.route("/project-db", methods=["GET"])
+# def viewProjectDb():
+#     projects = projectDb.find({}, {"_id": 0})
+#     html_output = "<html><body><table><tr><th>Project ID</th><th>&nbsp;</th><th>Project Name</th><th>&nbsp;</th><th>Description</th><th>&nbsp;</th><th>HW Set 1 Capacity</th><th>&nbsp;</th><th>HW Set 1 Availability</th><th>&nbsp;</th><th>HW Set 2 Capacity</th><th>&nbsp;</th><th>HW Set 2 Availability</th></tr>"
+#     for project in projects:
+#         html_output += f"<tr><td>{project['projectId']}</td><td>&nbsp;</td><td>{project['name']}</td><td>&nbsp;</td><td>{project['description']}</td><td>&nbsp;</td><td>{project['hwSet1Capacity']}</td><td>&nbsp;</td><td>{project['hwSet1Availability']}</td><td>&nbsp;</td><td>{project['hwSet2Capacity']}</td><td>&nbsp;</td><td>{project['hwSet2Availability']}</td></tr>"
 
-    html_output += "</table></body></html>"
-    return html_output
+#     html_output += "</table></body></html>"
+#     return html_output
 
 
 @app.route("/authenticate", methods=["POST"])
@@ -105,25 +118,22 @@ def createProject():
     id = projectData.get("projectId")
     name = projectData.get("name")
     description = projectData.get("description")
-    set1Capacity = projectData.get("hwSet1Capacity")
-    set2Capacity = projectData.get("hwSet2Capacity")
 
     checkProjectId = {"projectId": id}
+    quantities = checkoutDb.find_one()
 
     createProject = {"projectId": id,
                     "name": name,
-                    "description": description,
-                    "hwSet1Capacity": set1Capacity,
-                    "hwSet2Capacity": set2Capacity,
-                    "hwSet1Availability": set1Capacity,
-                    "hwSet2Availability": set2Capacity
+                    "description": description
                     }
+    
+    returnDocument = {**createProject, **quantities}
 
     if projectDb.find_one(checkProjectId.copy()):
         return jsonify({"message": "The project Id already exists."}), 401
     else:
         projectDb.insert_one(createProject.copy())
-        return jsonify({"message": "Creating project.", **createProject})
+        return jsonify({"message": "Creating project.", **returnDocument})
 
 
 @app.route("/use-project", methods=["POST"])
@@ -133,11 +143,14 @@ def useProject():
     id = projectData.get("projectId")
 
     checkProjectId = {"projectId": id}
+    quantities = checkoutDb.find_one()
+
 
     retrievedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
+    returnDocument = {**retrievedProjectData, **quantities}
 
     if retrievedProjectData:
-        return jsonify({"message": "Project exists.", **retrievedProjectData})
+        return jsonify({"message": "Project exists.", **returnDocument})
     else:
         return jsonify({"message": "Project does not exist."}), 401
     
@@ -152,17 +165,22 @@ def checkIn():
     checkProjectId = {"projectId": id}
     retrievedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
 
+    quantities = checkoutDb.find_one()
+    # returnDocument = {**retrievedProjectData, **quantities}
+
     if retrievedProjectData:
-        if int(retrievedProjectData['hwSet1Availability']) + int(request1) > int(retrievedProjectData['hwSet1Capacity']):
+        if int(quantities['hwSet1Availability']) + int(request1) > int(quantities['hwSet1Capacity']):
             return jsonify({"message": "HW set 1 check in quantity exceeds capacity."}), 401
-        if int(retrievedProjectData['hwSet2Availability']) + int(request2) > int(retrievedProjectData['hwSet2Capacity']):
+        if int(quantities['hwSet2Availability']) + int(request2) > int(quantities['hwSet2Capacity']):
             return jsonify({"message": "HW set 2 check in quantity exceeds capacity."}), 401
         
-        newAvailability1 = str(int(retrievedProjectData['hwSet1Availability']) + int(request1))
-        newAvailability2 = str(int(retrievedProjectData['hwSet2Availability']) + int(request2))
-        projectDb.update_one(checkProjectId, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
+        newAvailability1 = str(int(quantities['hwSet1Availability']) + int(request1))
+        newAvailability2 = str(int(quantities['hwSet2Availability']) + int(request2))
+        checkoutDb.update_one({'_id': quantities['_id']}, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
 
-        updatedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
+        updatedQuantities = checkoutDb.find_one()
+
+        updatedProjectData = {**retrievedProjectData, **updatedQuantities}
         return jsonify({"message": "Checked in requested quantities.", **updatedProjectData})
     
     else:
@@ -179,17 +197,20 @@ def checkOut():
     checkProjectId = {"projectId": id}
     retrievedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
 
+    quantities = checkoutDb.find_one()
+
     if retrievedProjectData:
-        if int(retrievedProjectData['hwSet1Availability']) - int(request1) < 0:
+        if int(quantities['hwSet1Availability']) - int(request1) < 0:
             return jsonify({"message": "HW set 1 check out quantity exceeds availability."}), 401
-        if int(retrievedProjectData['hwSet2Availability']) - int(request2) < 0:
+        if int(quantities['hwSet2Availability']) - int(request2) < 0:
             return jsonify({"message": "HW set 2 check out quantity exceeds availability."}), 401
         
-        newAvailability1 = str(int(retrievedProjectData['hwSet1Availability']) - int(request1))
-        newAvailability2 = str(int(retrievedProjectData['hwSet2Availability']) - int(request2))
-        projectDb.update_one(checkProjectId, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
+        newAvailability1 = str(int(quantities['hwSet1Availability']) - int(request1))
+        newAvailability2 = str(int(quantities['hwSet2Availability']) - int(request2))
+        checkoutDb.update_one({'_id': quantities['_id']}, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
 
-        updatedProjectData = projectDb.find_one(checkProjectId, {'_id': 0})
+        updatedQuantities = checkoutDb.find_one()
+        updatedProjectData = {**retrievedProjectData, **updatedQuantities}
         return jsonify({"message": "Checked out requested quantities.", **updatedProjectData})
     
     else:
