@@ -9,10 +9,13 @@ from dotenv import load_dotenv
 # This may run twice since it is not in main
 
 context = None
+flaskApp = None
 
 def main():
     global context
+    global flaskApp
     context = AppContext()
+    flaskApp = context.app
 
     # Define routes
     context.app.route("/", methods=["GET"])(index)
