@@ -42,6 +42,8 @@ if globalDoc:
     checkoutDb.update_one({'_id': globalDoc['_id']}, {'$set': globalData})
 else:
     checkoutDb.insert_one(globalData) 
+# capacity was changed, so update this to 0
+projectDb.update_many({}, {'$set': {'hwSet1CheckedOut': '0', 'hwSet2CheckedOut': '0'}})
 print("Initialized global capacities") 
 
 
