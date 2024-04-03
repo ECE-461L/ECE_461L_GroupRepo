@@ -25,7 +25,7 @@ def main():
     initializeApp()
     app.run(host=os.environ['HOST'], debug=False, port=int(os.environ['PORT']))
 
-    
+
 def initializeApp():
     global cipherN, cipherD, loginDb, projectDb, checkoutDb
 
@@ -38,11 +38,10 @@ def initializeApp():
     client.admin.command('ping')
     print("Successfully connected to MongoDB")
     db = os.environ['DB_NAME']
-    loginDb = client[os.environ['DB_NAME']][os.environ['LOGIN_COLLECTION']]
-    projectDb = client[os.environ['DB_NAME']][os.environ['PROJECT_COLLECTION']]
-
-    # updated global quantity correctly
-    checkoutDb = client[os.environ['DB_NAME']][os.environ['CHECKOUT_COLLECTION']]
+    loginDb = client[db][os.environ['LOGIN_COLLECTION']]
+    projectDb = client[db][os.environ['PROJECT_COLLECTION']]
+    checkoutDb = client[db][os.environ['CHECKOUT_COLLECTION']]
+    
     # remove old data
     checkoutDb.delete_many({})
     globalData = {
