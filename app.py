@@ -41,7 +41,7 @@ globalDoc = checkoutDb.find_one()
 if globalDoc:
     checkoutDb.update_one({'_id': globalDoc['_id']}, {'$set': globalData})
 else:
-    checkoutDb.insert_one(globalData)
+    checkoutDb.insert_one(globalData) 
 print("Initialized global capacities") 
 
 
