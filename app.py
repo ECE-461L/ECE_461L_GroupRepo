@@ -28,18 +28,20 @@ print("Successfully connected to MongoDB")
 db = os.environ['DB_NAME']
 loginDb = client[os.environ['DB_NAME']][os.environ['LOGIN_COLLECTION']]
 projectDb = client[os.environ['DB_NAME']][os.environ['PROJECT_COLLECTION']]
-
-# updated global quantity correctly
 checkoutDb = client[os.environ['DB_NAME']][os.environ['CHECKOUT_COLLECTION']]
-# remove old data
-checkoutDb.delete_many({})
+
+# Initialize global capacities
 globalData = {
     'hwSet1Capacity': f"{os.environ['SET_1_CAPACITY']}",
     'hwSet1Availability': f"{os.environ['SET_1_CAPACITY']}",
     'hwSet2Capacity': f"{os.environ['SET_2_CAPACITY']}",
     'hwSet2Availability': f"{os.environ['SET_2_CAPACITY']}"
 }
-checkoutDb.insert_one(globalData)
+globalDoc = checkoutDb.find_one()
+if globalDoc:
+    checkoutDb.update_one({'_id': globalDoc['_id']}, {'$set': globalData})
+else:
+    checkoutDb.insert_one(globalData)
 print("Initialized global capacities")
 
 
