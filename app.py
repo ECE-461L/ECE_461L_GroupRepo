@@ -124,7 +124,9 @@ def createProject():
 
     createProject = {"projectId": id,
                     "name": name,
-                    "description": description
+                    "description": description,
+                    "hwSet1CheckedOut" : "0",
+                    "hwSet2CheckedOut" : "0"
                     }
     
     returnDocument = {**createProject, **quantities}
@@ -176,11 +178,22 @@ def checkIn():
         if int(quantities['hwSet2Availability']) + int(request2) > int(quantities['hwSet2Capacity']):
             return jsonify({"message": "HW set 2 check in quantity exceeds capacity."}), 401
         
+
+        if int(retrievedProjectData['hwSet1CheckedOut']) < int(request1):
+            return jsonify({"message": "HW set 1 check in quantity exceeds checked out quantity."}), 401
+        if int(retrievedProjectData['hwSet2CheckedOut']) < int(request2):
+            return jsonify({"message": "HW set 2 check in quantity exceeds checked out quantity."}), 401
+        
+        
         newAvailability1 = str(int(quantities['hwSet1Availability']) + int(request1))
         newAvailability2 = str(int(quantities['hwSet2Availability']) + int(request2))
         checkoutDb.update_one({'_id': quantities['_id']}, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
 
         updatedQuantities = checkoutDb.find_one({}, {'_id': 0})
+
+        newHWSet1CheckedOut = str(int(retrievedProjectData['hwSet1CheckedOut']) - int(request1))
+        newHWSet2CheckedOut = str(int(retrievedProjectData['hwSet2CheckedOut']) - int(request2))
+        projectDb.update_one(checkProjectId, {'$set': {'hwSet1CheckedOut': newHWSet1CheckedOut, 'hwSet2CheckedOut': newHWSet2CheckedOut}})
 
         updatedProjectData = {**retrievedProjectData, **updatedQuantities}
         return jsonify({"message": "Checked in requested quantities.", **updatedProjectData})
@@ -209,9 +222,14 @@ def checkOut():
         
         newAvailability1 = str(int(quantities['hwSet1Availability']) - int(request1))
         newAvailability2 = str(int(quantities['hwSet2Availability']) - int(request2))
+
         checkoutDb.update_one({'_id': quantities['_id']}, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
 
         updatedQuantities = checkoutDb.find_one({}, {'_id': 0})
+
+        newHWSet1CheckedOut = str(int(retrievedProjectData['hwSet1CheckedOut']) + int(request1))
+        newHWSet2CheckedOut = str(int(retrievedProjectData['hwSet2CheckedOut']) + int(request2))
+        projectDb.update_one(checkProjectId, {'$set': {'hwSet1CheckedOut': newHWSet1CheckedOut, 'hwSet2CheckedOut': newHWSet2CheckedOut}})
 
         updatedProjectData = {**retrievedProjectData, **updatedQuantities}
         return jsonify({"message": "Checked out requested quantities.", **updatedProjectData})
