@@ -6,28 +6,28 @@ from pymongo.server_api import ServerApi
 import os
 from dotenv import load_dotenv
 
+# Create Flask app
 # This may run twice since it is not in main
-
 context = None
-flaskApp = None
+flaskApp = Flask(__name__, static_folder="./build", static_url_path="/")
+cors = CORS(flaskApp)
 
 def main():
     global context
-    global flaskApp
+    
     context = AppContext()
-    flaskApp = context.app
 
     # Define routes
-    context.app.route("/", methods=["GET"])(index)
-    context.app.route("/authenticate", methods=["POST"])(authenticate)
-    context.app.route("/register", methods=["POST"])(register)
-    context.app.route("/create-project", methods=["POST"])(createProject)
-    context.app.route("/use-project", methods=["POST"])(useProject)
-    context.app.route("/check-in", methods=["POST"])(checkIn)
-    context.app.route("/check-out", methods=["POST"])(checkOut)
-    context.app.errorhandler(404)(not_found)
+    flaskApp.route("/", methods=["GET"])(index)
+    flaskApp.route("/authenticate", methods=["POST"])(authenticate)
+    flaskApp.route("/register", methods=["POST"])(register)
+    flaskApp.route("/create-project", methods=["POST"])(createProject)
+    flaskApp.route("/use-project", methods=["POST"])(useProject)
+    flaskApp.route("/check-in", methods=["POST"])(checkIn)
+    flaskApp.route("/check-out", methods=["POST"])(checkOut)
+    flaskApp.errorhandler(404)(not_found)
 
-    context.app.run(host=os.environ['HOST'], debug=False, port=int(os.environ['PORT']))
+    flaskApp.run(host=os.environ['HOST'], debug=False, port=int(os.environ['PORT']))
     # local run
     # app.run(host="localhost", debug=True, port=5000) 
 
@@ -40,10 +40,6 @@ class AppContext():
         print("Loaded environment variables:")
         for key, value in os.environ.items():
             print(f"{key}={value}")
-
-        # Create Flask app
-        self.app = Flask(__name__, static_folder="./build", static_url_path="/")
-        self.cors = CORS(self.app)
 
         # Set cipher variables
         self.cipherN = int(os.environ['CIPHER_N'])
@@ -74,7 +70,7 @@ class AppContext():
 
 # Default behavior to pull from the index.html frontend file
 def index():
-    return send_from_directory(context.app.static_folder, "index.html")
+    return send_from_directory(flaskApp.static_folder, "index.html")
 
 def authenticate():
     user_data = request.get_json()
@@ -221,7 +217,7 @@ def checkOut():
 
 
 def not_found(e):
-    return send_from_directory(context.app.static_folder, "index.html")
+    return send_from_directory(flaskApp.static_folder, "index.html")
 
 
 if __name__ == "__main__":
