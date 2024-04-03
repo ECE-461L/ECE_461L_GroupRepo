@@ -44,7 +44,7 @@ def initializeApp():
 
     # initialize capacities if not already
     if checkoutDb.count_documents({'hwSet1Capacity': {"$exists": True}}) == 0:
-        checkoutDb.delete_many({})
+        # checkoutDb.delete_many({})
         globalData = {
             'hwSet1Capacity': f"{os.environ['SET_1_CAPACITY']}",
             'hwSet1Availability': f"{os.environ['SET_1_CAPACITY']}",
