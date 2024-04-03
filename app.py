@@ -42,17 +42,17 @@ def initializeApp():
     projectDb = client[db][os.environ['PROJECT_COLLECTION']]
     checkoutDb = client[db][os.environ['CHECKOUT_COLLECTION']]
 
-    # initialize capacities if not already
-    if checkoutDb.count_documents({'hwSet1Capacity': {"$exists": True}}) == 0:
-        # checkoutDb.delete_many({})
-        globalData = {
-            'hwSet1Capacity': f"{os.environ['SET_1_CAPACITY']}",
-            'hwSet1Availability': f"{os.environ['SET_1_CAPACITY']}",
-            'hwSet2Capacity': f"{os.environ['SET_2_CAPACITY']}",
-            'hwSet2Availability': f"{os.environ['SET_2_CAPACITY']}"
-        }
-        checkoutDb.insert_one(globalData)
-        print("Initialized global capacities")
+    globalData = {
+        'hwSet1Capacity': f"{os.environ['SET_1_CAPACITY']}",
+        'hwSet1Availability': f"{os.environ['SET_1_CAPACITY']}",
+        'hwSet2Capacity': f"{os.environ['SET_2_CAPACITY']}",
+        'hwSet2Availability': f"{os.environ['SET_2_CAPACITY']}"
+    }
+    checkoutDb.insert_one(globalData)
+    print("Initialized global capacities")
+
+        # checkoutDb.update_one({'_id': quantities['_id']}, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
+
 
 
 # Default behavior to pull from the index.html frontend file
