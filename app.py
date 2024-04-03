@@ -17,56 +17,59 @@ for key, value in os.environ.items():
 app = Flask(__name__, static_folder="./build", static_url_path="/")
 cors = CORS(app)
 
-# Globals set by initializeApp
-cipherN = cipherD = None
-loginDb = projectDb = checkoutDb = None
+# Set cipher variables
+cipherN = int(os.environ['CIPHER_N'])
+cipherD = int(os.environ['CIPHER_D'])
 
-def main():
-    initializeApp()
-    app.run(host=os.environ['HOST'], debug=False, port=int(os.environ['PORT']))
+# Connect to MongoDB
+client = MongoClient(os.environ['MONGO_URI'], server_api=ServerApi('1'))
+client.admin.command('ping')
+print("Successfully connected to MongoDB")
+db = os.environ['DB_NAME']
+loginDb = client[os.environ['DB_NAME']][os.environ['LOGIN_COLLECTION']]
+projectDb = client[os.environ['DB_NAME']][os.environ['PROJECT_COLLECTION']]
 
+# updated global quantity correctly
+checkoutDb = client[os.environ['DB_NAME']][os.environ['CHECKOUT_COLLECTION']]
+# remove old data
+checkoutDb.delete_many({})
+globalData = {
+    'hwSet1Capacity': f"{os.environ['SET_1_CAPACITY']}",
+    'hwSet1Availability': f"{os.environ['SET_1_CAPACITY']}",
+    'hwSet2Capacity': f"{os.environ['SET_2_CAPACITY']}",
+    'hwSet2Availability': f"{os.environ['SET_2_CAPACITY']}"
+}
+checkoutDb.insert_one(globalData)
+print("Initialized global capacities")
 
-def initializeApp():
-    global cipherN, cipherD, loginDb, projectDb, checkoutDb
-
-    # Set cipher variables
-    cipherN = int(os.environ['CIPHER_N'])
-    cipherD = int(os.environ['CIPHER_D'])
-
-    # Connect to MongoDB
-    client = MongoClient(os.environ['MONGO_URI'], server_api=ServerApi('1'))
-    client.admin.command('ping')
-    print("Successfully connected to MongoDB")
-    db = os.environ['DB_NAME']
-    loginDb = client[db][os.environ['LOGIN_COLLECTION']]
-    projectDb = client[db][os.environ['PROJECT_COLLECTION']]
-    checkoutDb = client[db][os.environ['CHECKOUT_COLLECTION']]
-
-    # globalData = {
-    #     'hwSet1Capacity': f"{os.environ['SET_1_CAPACITY']}",
-    #     'hwSet1Availability': f"{os.environ['SET_1_CAPACITY']}",
-    #     'hwSet2Capacity': f"{os.environ['SET_2_CAPACITY']}",
-    #     'hwSet2Availability': f"{os.environ['SET_2_CAPACITY']}"
-    # }
-    # checkoutDb.insert_one(globalData)
-    # print("Initialized global capacities")
-
-    #     checkoutDb.update_one({'_id': quantities['_id']}, {'$set': {'hwSet1Availability': newAvailability1, 'hwSet2Availability': newAvailability2}})
-
-    checkoutDb.delete_many({})
-    globalData = {
-        'hwSet1Capacity': f"{os.environ['SET_1_CAPACITY']}",
-        'hwSet1Availability': f"{os.environ['SET_1_CAPACITY']}",
-        'hwSet2Capacity': f"{os.environ['SET_2_CAPACITY']}",
-        'hwSet2Availability': f"{os.environ['SET_2_CAPACITY']}"
-    }
-    checkoutDb.insert_one(globalData)
-    print("Initialized global capacities")
 
 # Default behavior to pull from the index.html frontend file
 @app.route("/", methods=["GET"])
 def index():
     return send_from_directory(app.static_folder, "index.html")
+
+# @app.route("/login-db", methods=["GET"])
+# def viewLoginDb():
+#     users = loginDb.find({}, {"_id": 0})
+#     html_output = "<html><body><table><tr><th>Username</th><th>&nbsp;</th><th>Encrypted Password</th></tr>"
+#     for user in users:
+#         decrypted_username = cipher.decrypt(user["username"], cipherN, cipherD)
+#         encrypted_password = user["password"]
+#         html_output += f"<tr><td>{decrypted_username}</td><td>&nbsp;</td><td>{encrypted_password}</td></tr>"
+
+#     html_output += "</table></body></html>"
+#     return html_output
+
+# shows project ID, HWset1 capacity, HWset1 availability, HWset2 capacity, HWset2 availability in that order
+# @app.route("/project-db", methods=["GET"])
+# def viewProjectDb():
+#     projects = projectDb.find({}, {"_id": 0})
+#     html_output = "<html><body><table><tr><th>Project ID</th><th>&nbsp;</th><th>Project Name</th><th>&nbsp;</th><th>Description</th><th>&nbsp;</th><th>HW Set 1 Capacity</th><th>&nbsp;</th><th>HW Set 1 Availability</th><th>&nbsp;</th><th>HW Set 2 Capacity</th><th>&nbsp;</th><th>HW Set 2 Availability</th></tr>"
+#     for project in projects:
+#         html_output += f"<tr><td>{project['projectId']}</td><td>&nbsp;</td><td>{project['name']}</td><td>&nbsp;</td><td>{project['description']}</td><td>&nbsp;</td><td>{project['hwSet1Capacity']}</td><td>&nbsp;</td><td>{project['hwSet1Availability']}</td><td>&nbsp;</td><td>{project['hwSet2Capacity']}</td><td>&nbsp;</td><td>{project['hwSet2Availability']}</td></tr>"
+
+#     html_output += "</table></body></html>"
+#     return html_output
 
 
 @app.route("/authenticate", methods=["POST"])
@@ -239,30 +242,6 @@ def not_found(e):
     return send_from_directory(app.static_folder, "index.html")
 
 if __name__ == "__main__":
-    main()
+    app.run(host=os.environ['HOST'], debug=False, port=int(os.environ['PORT']))
     # local run
     # app.run(host="localhost", debug=True, port=5000) 
-
-
-# @app.route("/login-db", methods=["GET"])
-# def viewLoginDb():
-#     users = loginDb.find({}, {"_id": 0})
-#     html_output = "<html><body><table><tr><th>Username</th><th>&nbsp;</th><th>Encrypted Password</th></tr>"
-#     for user in users:
-#         decrypted_username = cipher.decrypt(user["username"], cipherN, cipherD)
-#         encrypted_password = user["password"]
-#         html_output += f"<tr><td>{decrypted_username}</td><td>&nbsp;</td><td>{encrypted_password}</td></tr>"
-
-#     html_output += "</table></body></html>"
-#     return html_output
-
-# shows project ID, HWset1 capacity, HWset1 availability, HWset2 capacity, HWset2 availability in that order
-# @app.route("/project-db", methods=["GET"])
-# def viewProjectDb():
-#     projects = projectDb.find({}, {"_id": 0})
-#     html_output = "<html><body><table><tr><th>Project ID</th><th>&nbsp;</th><th>Project Name</th><th>&nbsp;</th><th>Description</th><th>&nbsp;</th><th>HW Set 1 Capacity</th><th>&nbsp;</th><th>HW Set 1 Availability</th><th>&nbsp;</th><th>HW Set 2 Capacity</th><th>&nbsp;</th><th>HW Set 2 Availability</th></tr>"
-#     for project in projects:
-#         html_output += f"<tr><td>{project['projectId']}</td><td>&nbsp;</td><td>{project['name']}</td><td>&nbsp;</td><td>{project['description']}</td><td>&nbsp;</td><td>{project['hwSet1Capacity']}</td><td>&nbsp;</td><td>{project['hwSet1Availability']}</td><td>&nbsp;</td><td>{project['hwSet2Capacity']}</td><td>&nbsp;</td><td>{project['hwSet2Availability']}</td></tr>"
-
-#     html_output += "</table></body></html>"
-#     return html_output
