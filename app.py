@@ -9,25 +9,25 @@ from dotenv import load_dotenv
 # Create Flask app
 # This may run twice since it is not in main
 context = None
-flaskApp = Flask(__name__, static_folder="./build", static_url_path="/")
-cors = CORS(flaskApp)
+app = Flask(__name__, static_folder="./build", static_url_path="/")
+cors = CORS(app)
 
 def main():
     global context
-    
+
     context = AppContext()
 
     # Define routes
-    flaskApp.route("/", methods=["GET"])(index)
-    flaskApp.route("/authenticate", methods=["POST"])(authenticate)
-    flaskApp.route("/register", methods=["POST"])(register)
-    flaskApp.route("/create-project", methods=["POST"])(createProject)
-    flaskApp.route("/use-project", methods=["POST"])(useProject)
-    flaskApp.route("/check-in", methods=["POST"])(checkIn)
-    flaskApp.route("/check-out", methods=["POST"])(checkOut)
-    flaskApp.errorhandler(404)(not_found)
+    app.route("/", methods=["GET"])(index)
+    app.route("/authenticate", methods=["POST"])(authenticate)
+    app.route("/register", methods=["POST"])(register)
+    app.route("/create-project", methods=["POST"])(createProject)
+    app.route("/use-project", methods=["POST"])(useProject)
+    app.route("/check-in", methods=["POST"])(checkIn)
+    app.route("/check-out", methods=["POST"])(checkOut)
+    app.errorhandler(404)(not_found)
 
-    flaskApp.run(host=os.environ['HOST'], debug=False, port=int(os.environ['PORT']))
+    app.run(host=os.environ['HOST'], debug=False, port=int(os.environ['PORT']))
     # local run
     # app.run(host="localhost", debug=True, port=5000) 
 
@@ -70,7 +70,7 @@ class AppContext():
 
 # Default behavior to pull from the index.html frontend file
 def index():
-    return send_from_directory(flaskApp.static_folder, "index.html")
+    return send_from_directory(app.static_folder, "index.html")
 
 def authenticate():
     user_data = request.get_json()
@@ -217,7 +217,7 @@ def checkOut():
 
 
 def not_found(e):
-    return send_from_directory(flaskApp.static_folder, "index.html")
+    return send_from_directory(app.static_folder, "index.html")
 
 
 if __name__ == "__main__":
