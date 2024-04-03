@@ -68,6 +68,7 @@ class AppContext():
         print("Initialized global capacities")
 
 
+
 # Default behavior to pull from the index.html frontend file
 def index():
     return send_from_directory(context.app.static_folder, "index.html")
