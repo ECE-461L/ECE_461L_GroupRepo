@@ -42,7 +42,7 @@ if globalDoc:
     checkoutDb.update_one({'_id': globalDoc['_id']}, {'$set': globalData})
 else:
     checkoutDb.insert_one(globalData)
-print("Initialized global capacities")
+print("Initialized global capacities") 
 
 
 # Default behavior to pull from the index.html frontend file
