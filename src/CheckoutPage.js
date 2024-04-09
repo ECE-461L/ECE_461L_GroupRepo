@@ -123,8 +123,7 @@ function CheckoutPage() {
                 <Button label="Check out" onClick={checkOut} type="button" />
             </form>
             <div>
-                {inputError && <p className="error-message">{inputError}</p>}
-                <p>{message}</p>
+                {inputError ? ( <p className="error-message">{inputError}</p> ) : ( <p className="accept-message">{message}</p> )}
             </div>
             <div className="navigate-buttons">
                 <Button label="Back to project page" onClick={goToProjects} />

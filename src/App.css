@@ -59,7 +59,11 @@
   font-weight: bold;
   margin-top: 5px;
 }
-
+.accept-message {
+  color: greenyellow;
+  font-weight: bold;
+  margin-top: 5px;
+}
 .form-container {
   max-width: fit-content; 
   margin: auto; 
